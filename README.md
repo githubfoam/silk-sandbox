@@ -11,12 +11,33 @@ sudo systemctl restart rwflowpack.service
 sudo systemctl status rwflowpack.service
 sudo systemctl restart yaf.service
 sudo systemctl status yaf.service
-cat /var/log/rwflowpack-20191202.log
 
+Check the rwflowpack log file again to ensure that it received a connection from yaf. There should be a message similar to the following (the port number will likely differ):
+'S0': accepted connection from 127.0.0.1:36734
+tail -n 40 /var/log/rwflowpack-XXX.log
+
+Look at the yaf log file, /var/log/yaf.log to ensure that it is running.
+tail -n 40 /var/log/yaf.log
+
+Generate traffic
 ping -c 5 8.8.8.8
+
+Run a test query
 /usr/local/bin/rwfilter --sensor=S0 --type=all --all=stdout | rwcut --tail-recs=10
 
 <https://tools.netsa.cert.org/silk/silk-on-box-deb.html>
+~~~~
+upgrade
+~~~~
+silk-sandbox\provisioning\roles\silk\vars\main.yml
+<https://tools.netsa.cert.org/silk/download.html>
+<https://tools.netsa.cert.org/yaf/download.html>
+<https://tools.netsa.cert.org/fixbuf/download.html>
+
+debian-10.1
+silk_version: 3.19.0
+libfixbuf_version: 2.4.0
+yaf_version: 2.11.0
 ~~~~
 smoketesting silk
 ~~~~

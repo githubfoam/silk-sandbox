@@ -1,5 +1,4 @@
 ---
-# https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Ubuntu_Installation
 # [WARNING]: Could not find aptitude. Using apt-get instead fix
 - name: "APT: Install aptitude package"
   apt:
@@ -141,11 +140,6 @@
     group: root
     mode: a+x
     remote_src: yes
-# # - name: "Start rwflowpack (a message about contains no runlevels, aborting is non-fatal)"
-# #   systemd:
-# #     state: started
-# #     enabled: yes
-# #     name: rwflowpack
 - name: "Edit the YAF start-up configuration file, /usr/local/etc/yaf.conf"
   template:
       src: yaf.conf.j2
@@ -153,9 +147,5 @@
       owner: root
       group: root
       mode: 0644
-# # - name: "Start rwflowpack (a message about contains no runlevels, aborting is non-fatal)"
-# #   systemd:
-# #     state: started
-# #     enabled: yes
-# #     name: yaf
+
 #  ==== SILK ===============
