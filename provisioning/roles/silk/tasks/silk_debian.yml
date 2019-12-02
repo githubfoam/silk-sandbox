@@ -1,0 +1,161 @@
+---
+# https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Ubuntu_Installation
+# [WARNING]: Could not find aptitude. Using apt-get instead fix
+- name: "APT: Install aptitude package"
+  apt:
+   name: aptitude
+   force_apt_get: yes
+- name: "silk requirements"
+  package:
+    name: "{{ silk_debian_reqs }}"
+    state: present
+#  ==== SILK ===============
+- name: "Create /tmp/silk directory if it does not exist"
+  file:
+    path: /tmp/silk
+    state: directory
+    mode: '0755'
+- name: "Extract the latest version of libfixbuf into /tmp"
+  unarchive:
+    src: https://tools.netsa.cert.org/releases/libfixbuf-{{ libfixbuf_version }}.tar.gz
+    dest: /tmp/silk
+    creates: /tmp/silk/libfixbuf-{{ libfixbuf_version }}
+    remote_src: yes
+- name: "Configure libfixbuf"
+  shell: ./configure --prefix=/usr/local --enable-silent-rules >> /tmp/libfixbuf_configure.out
+  args:
+    chdir: /tmp/silk/libfixbuf-{{ libfixbuf_version }}
+    creates: /tmp/libfixbuf_configure.out
+- name: "Make libfixbuf"
+  shell: make  >> /tmp/libfixbuf_make.out
+  args:
+    chdir:  /tmp/silk/libfixbuf-{{ libfixbuf_version }}
+    creates: /tmp/libfixbuf_make.out
+- name: "Make install libfixbuf"
+  shell: make install  >> /tmp/libfixbuf_makeinstall.out
+  args:
+    chdir: /tmp/silk/libfixbuf-{{ libfixbuf_version }}
+    creates: /tmp/libfixbuf_makeinstall.out
+- name: "Extract the latest version of silk into /tmp"
+  unarchive:
+    src: https://tools.netsa.cert.org/releases/silk-{{ silk_version }}.tar.gz
+    dest: /tmp/silk
+    creates: /tmp/silk/silk-{{ silk_version }}
+    remote_src: yes
+- name: "Configure silk"
+  shell: ./configure --prefix=/usr/local --enable-silent-rules --enable-data-rootdir=/var/silk/data --enable-ipv6  --enable-ipset-compatibility=3.14.0 --enable-output-compression --with-python --with-python-prefix >> /tmp/silk_configure.out
+  args:
+    chdir: /tmp/silk/silk-{{ silk_version }}
+    creates: /tmp/silk_configure.out
+- name: "Make silk"
+  shell: make  >> /tmp/silk_make.out
+  args:
+    chdir:  /tmp/silk/silk-{{ silk_version }}
+    creates: /tmp/silk_make.out
+- name: "Make install silk"
+  shell: make install  >> /tmp/silk_makeinstall.out
+  args:
+    chdir: /tmp/silk/silk-{{ silk_version }}
+    creates: /tmp/silk_makeinstall.out
+- name: "Extract the latest version of YAF into /tmp"
+  unarchive:
+    src: https://tools.netsa.cert.org/releases/yaf-{{ yaf_version }}.tar.gz
+    dest: /tmp/silk
+    creates: /tmp/silk/libfixbuf-{{ yaf_version }}
+    remote_src: yes
+- name: "Configure YAF"
+  shell: ./configure --prefix=/usr/local --enable-silent-rules --enable-applabel --enable-metadata --enable-plugins >> /tmp/yaf_configure.out
+  args:
+    chdir: /tmp/silk/yaf-{{ yaf_version }}
+    creates: /tmp/yaf_configure.out
+- name: "Make YAF"
+  shell: make  >> /tmp/yaf_make.out
+  args:
+    chdir:  /tmp/silk/yaf-{{ yaf_version }}
+    creates: /tmp/yaf_make.out
+- name: "Make install YAF"
+  shell: make install  >> /tmp/yaf_makeinstall.out
+  args:
+    chdir: /tmp/silk/yaf-{{ yaf_version }}
+    creates: /tmp/yaf_makeinstall.out
+- name: "Manually copy the YAF start-up script into place"
+  copy:
+    src: /tmp/silk/yaf-{{ yaf_version }}/etc/init.d/yaf
+    dest: /etc/init.d/yaf
+    owner: root
+    group: root
+    mode: a+x
+    remote_src: yes
+- name: "Manually copy the YAF start-up script "
+  template:
+      src: silk.conf.j2
+      dest: /etc/ld.so.conf.d/silk.conf
+      owner: root
+      group: root
+      mode: 0644
+- name: "Run ldconfig"
+  shell: ldconfig
+  # args:
+  #   chdir: /tmp
+  #   creates: /etc/ld.so.conf.d/silk.conf
+- name: "Create /var/silk/data directory if it does not exist"
+  file:
+    path: /var/silk/data
+    state: directory
+    owner: root
+    group: root
+    mode: go+rx
+# - name: "Change /var/silk  ownership, group and permissions "
+#   file:
+#     path: /var/silk
+#     # owner: foo
+#     # group: foo
+#     mode: go+rx
+- name: "Add the silk.conf file"
+  copy:
+    src: /usr/local/share/silk/twoway-silk.conf
+    dest: /var/silk/data/silk.conf
+    owner: root
+    group: root
+    mode: a+x
+    remote_src: yes
+- name: "Create the sensors.conf file"
+  template:
+      src: sensors.conf.j2
+      dest: /var/silk/sensors.conf
+      owner: root
+      group: root
+      mode: 0644
+- name: "Copy the configuration settings script to /usr/local/etc/rwflowpack.conf"
+  template:
+    src: rwflowpack.conf.j2
+    dest: /usr/local/etc/rwflowpack.conf
+    owner: root
+    group: root
+    mode: 0644
+- name: "Copy rwflowpack's start-up script to /etc/init.d/rwflowpack"
+  copy:
+    src: /usr/local/share/silk/etc/init.d/rwflowpack
+    dest: /etc/init.d/rwflowpack
+    owner: root
+    group: root
+    mode: a+x
+    remote_src: yes
+# # - name: "Start rwflowpack (a message about contains no runlevels, aborting is non-fatal)"
+# #   systemd:
+# #     state: started
+# #     enabled: yes
+# #     name: rwflowpack
+- name: "Edit the YAF start-up configuration file, /usr/local/etc/yaf.conf"
+  template:
+      src: yaf.conf.j2
+      dest: /usr/local/etc/yaf.conf
+      owner: root
+      group: root
+      mode: 0644
+# # - name: "Start rwflowpack (a message about contains no runlevels, aborting is non-fatal)"
+# #   systemd:
+# #     state: started
+# #     enabled: yes
+# #     name: yaf
+#  ==== SILK ===============

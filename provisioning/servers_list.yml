@@ -1,0 +1,39 @@
+---
+- vagrant_box_host: "vg-silk-01"
+  vagrant_box: "bento/ubuntu-19.04"
+  vbox_name: "vbox-silk-01"
+  vbox_ram: 512
+  vbox_cpu: 2
+  network_type: "private_network"
+  vagrant_box_ip: 192.168.20.9
+  guest_port: 1111
+  host_port: 1111
+  server_bootstrap: "provisioning/deploy.yml"
+  ansible_version: "2.9.1"
+  ansible_compatibility_mode: "2.0"
+
+- vagrant_box_host: "vg-silk-02"
+  vagrant_box: "bento/centos-8.0"
+  vbox_name: "vbox-silk-02"
+  vbox_ram: 512
+  vbox_cpu: 2
+  network_type: "private_network"
+  vagrant_box_ip: 192.168.20.10
+  guest_port: 80
+  host_port: 81
+  server_bootstrap: "provisioning/deploy.yml"
+  ansible_version: "2.8.5"
+  ansible_compatibility_mode: "2.0"
+
+- vagrant_box_host: "vg-silk-03"
+  vagrant_box: "bento/debian-10.1"
+  vbox_name: "vbox-silk-03"
+  vbox_ram: 512
+  vbox_cpu: 2
+  network_type: "private_network"
+  vagrant_box_ip: 192.168.20.11
+  guest_port: 1235
+  host_port: 1235
+  server_bootstrap: "provisioning/deploy.yml"
+  ansible_version: "2.7.7"
+  ansible_compatibility_mode: "2.0"

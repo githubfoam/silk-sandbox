@@ -1,0 +1,16 @@
+probe S0 ipfix
+ listen-on-port 18001
+ protocol tcp
+ listen-as-host 127.0.0.1
+end probe
+
+group my-network
+ ipblocks 192.168.20.11/24  # address of ethernet interface. CHANGE THIS.
+ ipblocks 10.0.2.15/24      # other blocks considered internal. OPTIONAL.
+end group
+
+sensor S0
+ ipfix-probes S0
+ internal-ipblocks @my-network
+ external-ipblocks remainder
+end sensor

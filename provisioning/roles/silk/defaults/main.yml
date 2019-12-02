@@ -1,0 +1,12 @@
+---
+silk_debian_reqs:
+  - build-essential
+  - libglib2.0-dev
+  - liblzo2-dev
+  - zlib1g-dev
+  - libgnutls28-dev
+  - libpcap-dev
+  - python2.7-dev
+silk_ubuntu_reqs:
+
+silk_redhat_reqs:
